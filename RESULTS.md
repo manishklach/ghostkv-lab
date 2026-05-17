@@ -145,3 +145,34 @@ Current note:
 - Capture real attention tensors from additional decoder architectures.
 - Compare layer/head fragility across models and prompt families.
 - Study hierarchical ghost indexes and learned sketch functions.
+
+## Modern Architecture Validation
+
+The modern real-attention pipeline uses architecture-aware hooks to capture raw query/key projections and evaluate sketch preservation on non-synthetic tensors. In this environment, the memory-safe loader fell back to GPT-2, so broader modern-model validation remains pending even though the hook pathway now supports larger decoder families.
+
+### Summary table
+
+| layer_idx | false_elimination_rate | elimination_rate | top32_overlap | rank_correlation |
+| --- | --- | --- | --- | --- |
+| 0 | 0.0000 | 0.0000 | 0.2106 | 0.9523 |
+| 4 | 0.0370 | 0.0000 | 0.0926 | 0.8990 |
+| 8 | 0.0000 | 0.0000 | 0.1481 | 0.9169 |
+
+### Key findings
+
+- Current modern-capture runs resolved to `gpt2` (requested `meta-llama/Llama-3.2-1B-Instruct`).
+- Mean rank correlation is `0.8699`, while mean top-32 overlap is `0.1154`.
+- Mean elimination rate is only `0.000046` under the current positive-threshold sweep, with a maximum observed elimination rate of `0.003906`.
+- Mean false elimination rate is `0.0086`, but the current run does not reach a meaningful elimination regime; the methodology is currently more informative than the operating point.
+- Requested context lengths were `[512, 1024, 2048]`, with effective lengths `[512, 1024]` after model-specific truncation.
+- Maximum observed false elimination rate in the captured rows was `1.0000`.
+
+### Plots
+
+- [results/modern/false_elim_vs_theta_by_layer.png](results/modern/false_elim_vs_theta_by_layer.png)
+- [results/modern/elimination_rate_vs_false_elim.png](results/modern/elimination_rate_vs_false_elim.png)
+- [results/modern/topk_overlap_heatmap.png](results/modern/topk_overlap_heatmap.png)
+- [results/modern/context_length_scaling.png](results/modern/context_length_scaling.png)
+- [results/modern/sketch_dim_comparison.png](results/modern/sketch_dim_comparison.png)
+- [results/real_attention_modern/metrics.csv](results/real_attention_modern/metrics.csv)
+- [results/real_attention_modern/summary.json](results/real_attention_modern/summary.json)
