@@ -1,0 +1,7 @@
+scheme,resurrection_rate,bytes,reduction_vs_full
+full_kv,0.0,67108864.0,0.0
+int4_style,0.0,16777216.0,0.75
+ghostkv,0.005,10548224.0,0.842819
+ghostkv,0.01,10873344.0,0.837975
+ghostkv,0.02,11523584.0,0.828285
+ghostkv,0.05,13473792.0,0.799225
