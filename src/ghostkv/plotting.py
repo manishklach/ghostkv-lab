@@ -225,3 +225,123 @@ def plot_hierarchical_vs_flat(df_or_rows: Any, output_path: str | Path) -> None:
     fig.tight_layout()
     fig.savefig(output, dpi=180)
     plt.close(fig)
+
+
+def plot_false_elim_vs_elim_by_layer(df_or_rows: Any, output_path: str | Path) -> None:
+    """Plot false elimination against elimination rate grouped by layer."""
+    rows = _rows_from_input(df_or_rows)
+    output = _prepare_output(output_path)
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.8))
+    layer_ids = sorted({int(row["layer_idx"]) for row in rows})
+    for layer_idx in layer_ids:
+        layer_rows = sorted(
+            (row for row in rows if int(row["layer_idx"]) == layer_idx),
+            key=lambda row: (float(row["elimination_rate_mean"]), float(row["false_elimination_rate_mean"])),
+        )
+        elimination = np.array([float(row["elimination_rate_mean"]) for row in layer_rows], dtype=float)
+        false_elim = np.array([float(row["false_elimination_rate_mean"]) for row in layer_rows], dtype=float)
+        ax.plot(elimination, false_elim, marker="o", linewidth=1.6, label=f"layer={layer_idx}")
+
+    ax.axhline(0.05, color="red", linestyle="--", linewidth=1.0, label="5% false elim")
+    ax.set_title("False Elimination Frontier by Layer")
+    ax.set_xlabel("Elimination Rate")
+    ax.set_ylabel("False Elimination Rate")
+    ax.grid(True, linestyle="--", alpha=0.4)
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(output, dpi=180)
+    plt.close(fig)
+
+
+def plot_theta_frontier_by_layer(df_or_rows: Any, output_path: str | Path) -> None:
+    """Plot theta sensitivity of false elimination by layer."""
+    rows = _rows_from_input(df_or_rows)
+    output = _prepare_output(output_path)
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.8))
+    layer_ids = sorted({int(row["layer_idx"]) for row in rows})
+    for layer_idx in layer_ids:
+        layer_rows = sorted(
+            (row for row in rows if int(row["layer_idx"]) == layer_idx),
+            key=lambda row: float(row["theta_elim"]),
+        )
+        theta = np.array([float(row["theta_elim"]) for row in layer_rows], dtype=float)
+        false_elim = np.array([float(row["false_elimination_rate_mean"]) for row in layer_rows], dtype=float)
+        ax.plot(theta, false_elim, marker="o", linewidth=1.8, label=f"layer={layer_idx}")
+
+    ax.axhline(0.05, color="red", linestyle="--", linewidth=1.0)
+    ax.set_title("Theta Sensitivity of False Elimination")
+    ax.set_xlabel("Theta Elim")
+    ax.set_ylabel("False Elimination Rate")
+    ax.grid(True, linestyle="--", alpha=0.4)
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(output, dpi=180)
+    plt.close(fig)
+
+
+def plot_sketch_dim_frontier(df_or_rows: Any, output_path: str | Path) -> None:
+    """Plot best achievable elimination under a 5% false elimination threshold by sketch dimension."""
+    rows = _rows_from_input(df_or_rows)
+    output = _prepare_output(output_path)
+
+    sketch_dims = sorted({int(row["sketch_dim"]) for row in rows})
+    best_elimination = []
+    for sketch_dim in sketch_dims:
+        dim_rows = [
+            row
+            for row in rows
+            if int(row["sketch_dim"]) == sketch_dim and float(row["false_elimination_rate_mean"]) <= 0.05
+        ]
+        if dim_rows:
+            best_elimination.append(max(float(row["elimination_rate_mean"]) for row in dim_rows))
+        else:
+            best_elimination.append(0.0)
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.plot(sketch_dims, best_elimination, marker="o", linewidth=2)
+    ax.set_title("Best Elimination Under 5% False Elimination")
+    ax.set_xlabel("Sketch Dimension")
+    ax.set_ylabel("Best Achievable Elimination Rate")
+    ax.grid(True, linestyle="--", alpha=0.4)
+    fig.tight_layout()
+    fig.savefig(output, dpi=180)
+    plt.close(fig)
+
+
+def plot_headwise_false_elim_heatmap(df_or_rows: Any, output_path: str | Path) -> None:
+    """Plot a layer/head heatmap of mean false elimination rate."""
+    rows = _rows_from_input(df_or_rows)
+    output = _prepare_output(output_path)
+
+    layer_ids = sorted({int(row["layer_idx"]) for row in rows})
+    head_ids = sorted({int(row["head_idx"]) for row in rows})
+    matrix = np.zeros((len(layer_ids), len(head_ids)), dtype=float)
+
+    for layer_pos, layer_idx in enumerate(layer_ids):
+        for head_pos, head_idx in enumerate(head_ids):
+            matches = [
+                row
+                for row in rows
+                if int(row["layer_idx"]) == layer_idx and int(row["head_idx"]) == head_idx
+            ]
+            matrix[layer_pos, head_pos] = (
+                float(np.mean([float(row["false_elimination_rate_mean"]) for row in matches]))
+                if matches
+                else 0.0
+            )
+
+    fig, ax = plt.subplots(figsize=(7, 4.8))
+    image = ax.imshow(matrix, aspect="auto", cmap="viridis", interpolation="nearest")
+    ax.set_title("Head-wise Mean False Elimination Rate")
+    ax.set_xlabel("Head Index")
+    ax.set_ylabel("Layer")
+    ax.set_xticks(range(len(head_ids)))
+    ax.set_xticklabels([str(head_idx) for head_idx in head_ids])
+    ax.set_yticks(range(len(layer_ids)))
+    ax.set_yticklabels([str(layer_idx) for layer_idx in layer_ids])
+    fig.colorbar(image, ax=ax, label="False Elimination Rate")
+    fig.tight_layout()
+    fig.savefig(output, dpi=180)
+    plt.close(fig)

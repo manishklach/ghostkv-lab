@@ -6,6 +6,13 @@ from .bandwidth import (
     quantized_kv_bytes,
     standard_kv_bytes,
 )
+from .frontier import (
+    compute_false_elimination_frontier,
+    compute_layer_head_metrics,
+    ensure_output_dir,
+    find_safe_operating_points,
+    summarize_frontier,
+)
 from .hf_capture import (
     capture_qk_tensors,
     compute_exact_attention_scores,
@@ -45,9 +52,13 @@ __all__ = [
     "capture_qk_tensors",
     "coarse_elimination",
     "compute_exact_attention_scores",
+    "compute_false_elimination_frontier",
+    "compute_layer_head_metrics",
     "eliminate_by_threshold",
+    "ensure_output_dir",
     "extract_attention_statistics",
     "false_elimination_rate",
+    "find_safe_operating_points",
     "flatten_attention_heads",
     "ghostify_tokens",
     "ghostkv_bytes",
@@ -59,6 +70,7 @@ __all__ = [
     "quantized_kv_bytes",
     "simple_anchor_clustering",
     "standard_kv_bytes",
+    "summarize_frontier",
     "token_level_elimination",
     "topk_overlap",
     "transition_states",

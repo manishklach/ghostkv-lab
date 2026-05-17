@@ -1,5 +1,6 @@
 # GhostKV Lab
 
+[![CI](https://github.com/manishklach/ghostkv-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/manishklach/ghostkv-lab/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Status: Research Prototype](https://img.shields.io/badge/Status-Research%20Prototype-6c757d)
@@ -43,6 +44,24 @@ GhostKV Lab currently focuses on:
 - attention sketch behavior
 
 Real-model validation, GPU-kernel integration, and production inference deployment remain future work.
+
+## Current Research Focus
+
+The current focus is false-elimination frontier analysis on real transformer attention tensors.
+
+The key question:
+
+Can GhostKV eliminate meaningful amounts of cold KV state while keeping false elimination acceptably low?
+
+Run:
+
+```bash
+make frontier
+```
+
+Results are written to:
+
+`results/frontier/`
 
 ## What GhostKV Is
 
@@ -139,6 +158,7 @@ Long-context inference can become bottlenecked by KV-cache movement rather than 
 - `experiments/generate_results.py`: regenerates synthetic CSV outputs, PNG plots, and `RESULTS.md`
 - `experiments/real_attention_validation.py`: captures GPT-2 Q/K tensors and evaluates ranking preservation on real attention states
 - `experiments/hierarchical_elimination.py`: compares flat and hierarchical elimination on real attention tensors
+- `experiments/false_elimination_frontier.py`: sweeps `theta_elim` on real attention tensors to map elimination versus false-elimination frontiers by layer and head
 
 Synthetic and real-attention experiments are both intended to inform feasibility, not to claim production benefit.
 
@@ -154,6 +174,7 @@ Additional targets:
 
 - `make real-validation`
 - `make hierarchical`
+- `make frontier`
 - `make all-results`
 
 If `make` is not available in your shell, the equivalent commands are:

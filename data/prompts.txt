@@ -2,18 +2,18 @@
 short	Explain why cache locality matters in systems design.
 short	What is the purpose of a KV cache in transformer inference?
 short	Summarize the tradeoff between exactness and efficiency in one paragraph.
-long	Write a detailed explanation of why long-context inference can become bandwidth-bound rather than compute-bound.
-long	Describe the difference between compression, eviction, and query-time elimination for transformer KV-cache management. Include practical caveats.
-long	Discuss how memory hierarchy design can affect autoregressive decode throughput, especially when context length grows beyond the hot working set.
+long	Write a detailed explanation of why long-context inference can become bandwidth-bound rather than compute-bound. Include the roles of KV-cache size, memory hierarchy pressure, repeated decode-time reads, hot working sets, cold context pages, and why arithmetic throughput alone is often not the limiting factor once sequence length grows well beyond a small on-chip region.
+long	Describe the difference between compression, eviction, and query-time elimination for transformer KV-cache management. Include practical caveats about false negatives, reconstruction cost, attention quality risk, memory movement, decoding latency, conservative bounds, and why a method that looks efficient on storage bytes alone may still fail to reduce the active traffic seen during autoregressive decoding.
+long	Discuss how memory hierarchy design can affect autoregressive decode throughput, especially when context length grows beyond the hot working set. Cover SRAM, HBM, host memory, cache residency, reuse distance, prefetch uncertainty, and why a systems researcher might care more about bytes moved per token than only total bytes stored at rest.
 code	Write a Python function that computes scaled dot-product attention for a single head.
 code	Explain this pseudocode: for each token, compute an upper bound; eliminate impossible candidates; resurrect survivors; run exact attention.
 code	Generate a short code review note about a function that loads a model, captures attention tensors, and writes CSV outputs.
 conversation	User: I am testing a research idea about transformer memory. Assistant: What exactly are you trying to validate?
 conversation	User: I do not want hype. Assistant: Here is a careful experimental framing for a systems research repo.
 conversation	User: How can we test whether sketches preserve attention ranking? Assistant: Start with per-head overlap and false elimination metrics.
-retrieval	Given a long document about cache coherence, retrieve the paragraph that explains invalidation traffic under contention.
-retrieval	Answer the question using only the facts in the provided notes about transformer attention memory access patterns.
-retrieval	Find the sentence that mentions resurrection latency in a discussion of GhostKV-like evaluation.
+retrieval	Given a long document about cache coherence, retrieve the paragraph that explains invalidation traffic under contention, why repeated sharer invalidations amplify interconnect traffic, and how pathological access patterns can make the coherence protocol bottleneck the system even when the compute cores themselves remain lightly utilized.
+retrieval	Answer the question using only the facts in the provided notes about transformer attention memory access patterns, including the distinction between prefill and decode, the reason decode repeatedly scans historical keys, and the way context growth can change the memory-working-set profile across layers and heads.
+retrieval	Find the sentence that mentions resurrection latency in a discussion of GhostKV-like evaluation, and then explain how resurrection latency differs from storage compression, why it might dominate in small-batch decode, and why conservative elimination is only useful if the survivors can be reconstructed without destroying the latency budget.
 repetitive	alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha
 repetitive	token token token token token token token token token token token token token token token
 repetitive	cache cache cache cache cache cache cache cache cache cache cache cache cache cache cache
