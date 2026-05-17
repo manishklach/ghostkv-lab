@@ -1,0 +1,28 @@
+{
+  "requested_model_id": "meta-llama/Llama-3.2-1B-Instruct",
+  "resolved_model_id": "gpt2",
+  "device": "cpu",
+  "actual_dtype": "float32",
+  "load_in_4bit": false,
+  "num_rows": 1620,
+  "mean_false_elimination_rate": 0.008641975308641974,
+  "mean_elimination_rate": 4.5814043209876546e-05,
+  "mean_rank_correlation": 0.8699363290216097,
+  "mean_top8_overlap": 0.08256172839506173,
+  "mean_top16_overlap": 0.09587191358024691,
+  "mean_top32_overlap": 0.11535493827160494,
+  "layers_evaluated": [
+    0,
+    4,
+    8
+  ],
+  "heads_evaluated": [
+    0,
+    4,
+    8
+  ],
+  "contexts_evaluated": [
+    512,
+    1024
+  ]
+}
