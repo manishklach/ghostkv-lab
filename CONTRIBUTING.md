@@ -1,19 +1,24 @@
+<!-- GhostKV Lab — github.com/manishklach/ghostkv-lab -->
+<!-- Patent: IN 202641062451 -->
+
 # Contributing
 
 Thanks for your interest in improving GhostKV Lab.
 
-This repository is a research-oriented evaluation harness. Contributions that improve experimental clarity, reproducibility, and honest reporting are especially valuable.
+This repository is a research-oriented evaluation harness. Contributions should improve experimental rigor, reproducibility, and interpretability without overstating the maturity of the underlying GhostKV concept.
 
-## Setup
+## How to run experiments locally
 
 ### PowerShell
-
-Install locally from the repo root:
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 python -m pip install -e ".[dev]"
+python -m pytest
+python experiments/generate_results.py
+python experiments/real_attention_validation.py
+python experiments/false_elimination_frontier.py
 ```
 
 ### WSL / Linux / macOS
@@ -24,75 +29,48 @@ WSL is recommended for reproducible experiment workflows and heavier validation 
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
-```
-
-## Run Tests
-
-```bash
-python -m pytest
-```
-
-WSL examples:
-
-```bash
-wsl -e bash -c "pytest"
-```
-
-## Run Synthetic Results
-
-```bash
-make results
-```
-
-If `make` is unavailable in your shell:
-
-```bash
-python experiments/generate_results.py
-```
-
-WSL examples:
-
-```bash
-wsl -e bash -c "make results"
-```
-
-## Run Frontier Analysis
-
-```bash
+pytest
+make demo
+make real-validation
 make frontier
 ```
 
-If `make` is unavailable in your shell:
+From Windows, the same WSL workflow can be invoked explicitly:
 
 ```bash
-python experiments/false_elimination_frontier.py
-```
-
-Frontier outputs are written under `results/frontier/`.
-
-WSL examples:
-
-```bash
+wsl -e bash -c "pytest"
+wsl -e bash -c "make demo"
+wsl -e bash -c "make real-validation"
 wsl -e bash -c "make frontier"
-wsl -e bash -c "python experiments/false_elimination_frontier.py"
-wsl -e bash -c "python experiments/real_attention_validation.py"
 ```
 
-## Good First Issues
+## Good first issues
 
-- Add TinyLlama Q/K capture experiment
-- Implement learned sketch projections
-- Improve hierarchical anchor clustering
-- Add softmax denominator mass tracking
-- Add Llama/Mistral attention export scripts
+- Issue A: "Capture Mistral-7B-Instruct Q/K tensors and run real_attention_validation"
+- Issue B: "Implement learned sketch projections (see src/ghostkv/learned_sketch.py stub)"
+- Issue C: "Add softmax denominator tracking to the simulator"
 
-## Contribution Style
+## How to add a new model
 
-- Keep the tone research-oriented and non-hypey.
-- Prefer explicit limitations over optimistic framing.
-- Avoid claims about runtime benefit unless backed by the right measurements.
-- Keep synthetic and real-attention results clearly separated.
+1. Add or update environment recommendation logic if the model has different memory requirements.
+2. Extend architecture detection in the capture pipeline based on `model.config.model_type`.
+3. Register hooks on the right attention submodules:
+   - `q_proj` and `k_proj` for Llama-family models
+   - fused `query_key_value` for GPTNeoX-style models
+4. Confirm the captured tensors are raw Q/K representations before scaling or masking.
+5. Add a small validation run with at least one prompt and one layer.
+6. Update `RESULTS.md` only after the new model produces interpretable metrics.
 
-## Commit Message Suggestion
+## Results standards
 
-`Add false-elimination frontier analysis for real attention tensors`
+Before a PR is merged, the branch should provide:
+
+- passing `pytest`
+- reproducible commands used for the experiment
+- updated `RESULTS.md` if new public-facing results are added
+- generated plots or a clear reason they were not produced
+- explicit limitations and caveats for any claimed observation
+
+## Patent notice
+
+Do not remove patent attribution from any file where it already exists, and do not remove or rewrite the repository's factual patent notice sections.
