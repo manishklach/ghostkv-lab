@@ -4,7 +4,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Status: Research Prototype](https://img.shields.io/badge/Status-Research%20Prototype-6c757d)
-![Synthetic Validation](https://img.shields.io/badge/Validation-Synthetic-orange)
 
 “A research simulator for query-time bounded elimination of reconstructable KV-cache witnesses in long-context transformer inference.”
 
@@ -25,25 +24,13 @@ The repository is intended as a research and evaluation harness for exploring th
 Current status:
 
 - Synthetic GhostKV simulator: working
-- Sketch quality audit: working
-- Elimination tradeoff sweep: working
-- Bandwidth model: working
 - GPT-2 real attention validation: working
-- Hierarchical elimination study: working
-- TinyLlama validation: optional / fallback to GPT-2
+- False-elimination frontier analysis: working
+- Hierarchical elimination experiments: working
+- Synthetic result generation pipeline: working
+- Modern Llama/Mistral validation: pending
 - GPU kernel integration: pending
-
-## Research Positioning
-
-GhostKV Lab currently focuses on:
-
-- synthetic evaluation
-- real attention-ranking validation on lightweight HuggingFace models
-- elimination-bound experimentation
-- KV-memory traffic modeling
-- attention sketch behavior
-
-Real-model validation, GPU-kernel integration, and production inference deployment remain future work.
+- Production inference integration: not implemented
 
 ## Current Research Focus
 
@@ -52,6 +39,16 @@ The current focus is false-elimination frontier analysis on real transformer att
 The key question:
 
 Can GhostKV eliminate meaningful amounts of cold KV state while keeping false elimination acceptably low?
+
+Current experiments focus on:
+
+- attention sketch preservation
+- bounded elimination behavior
+- layer/head sensitivity
+- hierarchical elimination
+- synthetic memory-traffic modeling
+
+Latency reduction and production inference integration remain future work.
 
 Run:
 
@@ -85,7 +82,7 @@ The key property in this repository is exactness over survivors: approximation i
 - Not a proof of speedup
 - Not a substitute for real-model validation
 
-This repository uses synthetic tensors first. Real-model validation is future work.
+This repository uses synthetic tensors first and now includes GPT-2 attention-tensor validation. Broader modern-model validation remains future work.
 
 ## Architecture
 
@@ -96,6 +93,8 @@ KV Cache
                     |
 Query --> Sketch --> Bound --> Eliminate or Resurrect --> Exact Attend
 ```
+
+The working intuition is simple: eliminate before moving, but only if the elimination bound remains conservative enough to avoid unacceptable false elimination.
 
 ## Repository Layout
 
@@ -125,6 +124,7 @@ python experiments/synthetic_decode_simulation.py
 python experiments/generate_results.py
 python experiments/real_attention_validation.py
 python experiments/hierarchical_elimination.py
+python experiments/false_elimination_frontier.py
 ```
 
 If you prefer not to create a virtual environment, the same install and run commands work with the active Python environment as long as it is Python 3.10+.
@@ -161,6 +161,14 @@ Long-context inference can become bottlenecked by KV-cache movement rather than 
 - `experiments/false_elimination_frontier.py`: sweeps `theta_elim` on real attention tensors to map elimination versus false-elimination frontiers by layer and head
 
 Synthetic and real-attention experiments are both intended to inform feasibility, not to claim production benefit.
+
+## Known Findings So Far
+
+- Random projections preserve global similarity structure more effectively than exact top-attention ranking.
+- Real transformer tensors behave differently from synthetic Gaussian tensors.
+- False elimination remains the primary technical challenge.
+- Some attention heads and layers appear substantially more sketch-preserving than others.
+- Hierarchical elimination may improve elimination behavior in principle, but the current naive clustering baseline does not yet outperform flat elimination consistently.
 
 ## Generate Results
 
@@ -219,11 +227,38 @@ What is future work:
 
 ## Roadmap
 
-- Integrate HuggingFace attention capture
-- LongBench evaluation
-- Needle-in-a-Haystack validation
-- FlashAttention-compatible prototype
-- CXL / near-memory simulation
+### Phase 1 — Synthetic Validation
+
+- synthetic sketch quality
+- elimination sweeps
+- bandwidth modeling
+
+### Phase 2 — Real Attention Validation
+
+- GPT-2 Q/K capture
+- layer/head frontier analysis
+- false elimination measurement
+
+### Phase 3 — Modern Model Validation
+
+- TinyLlama
+- Mistral
+- Llama-3 style architectures
+- grouped-query attention behavior
+
+### Phase 4 — Runtime Integration
+
+- FlashAttention-compatible survivor path
+- decode-side resurrection overlap
+- GPU kernel hooks
+- memory movement instrumentation
+
+### Phase 5 — Memory-System Exploration
+
+- hierarchical ghost indexes
+- learned sketch functions
+- CXL / near-memory filtering
+- memory-side elimination experiments
 
 Additional detail is in [docs/roadmap.md](docs/roadmap.md).
 
@@ -242,8 +277,20 @@ The source code in this repository is available under the MIT License. That copy
 
 MIT. See [LICENSE](LICENSE).
 
+## Limitations
+
+- GPT-2 is not representative of all modern LLMs.
+- The repository does not include a production decode kernel.
+- No real memory movement reduction is measured yet.
+- The resurrection pipeline is still simulated.
+- There is no FlashAttention integration.
+- There is no end-to-end throughput benchmark.
+- There is no proof of quality preservation on downstream tasks.
+
+This repository currently explores feasibility and methodology, not production deployment.
+
 ## Disclaimer
 
 GhostKV Lab is an experimental research repository exploring systems concepts related to KV-cache memory movement and bounded elimination in transformer inference workloads.
 
-Current experiments are synthetic and intended for methodology exploration. The repository does not currently implement a production transformer runtime.
+Current experiments are synthetic or small-model analytical studies intended for methodology exploration. The repository does not currently implement a production transformer runtime.
