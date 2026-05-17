@@ -1,8 +1,23 @@
 # GhostKV Lab
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Status: Research Prototype](https://img.shields.io/badge/Status-Research%20Prototype-6c757d)
+![Synthetic Validation](https://img.shields.io/badge/Validation-Synthetic-orange)
+
 “A research simulator for query-time bounded elimination of reconstructable KV-cache witnesses in long-context transformer inference.”
 
 GhostKV Lab is a lightweight Python repository for studying whether sketch-based bounded elimination can reduce KV-cache memory movement while preserving attention quality in long-context decode workloads. It is built as a synthetic evaluation harness first: no heavyweight model downloads, no kernel claims, and no fabricated benchmark results.
+
+## Patent Notice
+
+This repository is associated with Indian provisional patent application `202641062451`, titled:
+
+“GHOSTKV: A SYSTEM AND METHOD FOR QUERY-TIME BOUNDED ELIMINATION OF RECONSTRUCTABLE KEY-VALUE WITNESSES IN TRANSFORMER ATTENTION MECHANISMS”
+
+Filed on `2026-05-17`.
+
+The repository is intended as a research and evaluation harness for exploring the underlying systems concepts. A concise note is available in [docs/patent_notice.md](docs/patent_notice.md).
 
 ## Current Status
 
@@ -14,6 +29,17 @@ Current status:
 - Bandwidth model: working
 - Real-model validation: pending
 - GPU kernel integration: pending
+
+## Research Positioning
+
+GhostKV Lab currently focuses on:
+
+- synthetic evaluation
+- elimination-bound experimentation
+- KV-memory traffic modeling
+- attention sketch behavior
+
+Real-model validation, GPU-kernel integration, and production inference deployment remain future work.
 
 ## What GhostKV Is
 
@@ -124,6 +150,37 @@ python -m pytest
 python experiments/generate_results.py
 ```
 
+## Current State Of The Project
+
+What currently works:
+
+- synthetic sketch-quality sweeps
+- elimination-threshold experiments
+- decode-step simulation with exact attention on surviving candidates
+- illustrative bandwidth and resurrection modeling
+- CSV, plot, and markdown result generation
+
+What is currently simulated:
+
+- query and key tensors
+- anchor and residual uncertainty terms
+- resurrection cost estimates
+- memory-traffic comparisons
+
+What remains hypothetical or unvalidated:
+
+- behavior on real transformer attention tensors
+- quality retention on benchmark tasks
+- runtime overlap between resurrection and decode compute
+- end-to-end latency benefit in a production inference stack
+
+What is future work:
+
+- real-model Q/K capture
+- LongBench and retrieval-style validation
+- FlashAttention-compatible survivor paths
+- GPU and memory-tier experiments
+
 ## Roadmap
 
 - Integrate HuggingFace attention capture
@@ -141,6 +198,16 @@ Additional detail is in [docs/roadmap.md](docs/roadmap.md).
 - Test runner: `pytest`
 - Editable install supported via `pip install -e ".[dev]"`
 
+## License Clarification
+
+The source code in this repository is available under the MIT License. That copyright license applies to the code itself; it does not by itself waive any separate patent rights that may be associated with related patent filings.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Disclaimer
+
+GhostKV Lab is an experimental research repository exploring systems concepts related to KV-cache memory movement and bounded elimination in transformer inference workloads.
+
+Current experiments are synthetic and intended for methodology exploration. The repository does not currently implement a production transformer runtime.

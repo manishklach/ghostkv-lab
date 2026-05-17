@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "GhostKV Lab"
+message: "If you use this repository, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: "Klach"
+    given-names: "Manish"
+repository-code: "https://github.com/manishklach/ghostkv-lab"
+url: "https://github.com/manishklach/ghostkv-lab"
+abstract: >-
+  GhostKV Lab is a research simulator for query-time bounded elimination of
+  reconstructable KV-cache witnesses in long-context transformer inference.
+  The repository focuses on synthetic evaluation of attention sketches,
+  conservative elimination bounds, selective resurrection, and illustrative
+  KV-memory movement modeling. Related to Indian provisional patent
+  application 202641062451.
+keywords:
+  - ghostkv
+  - kv-cache
+  - llm-inference
+  - long-context
+  - transformer
+  - systems-research
+  - attention-optimization
+  - memory-systems
+license: "MIT"
+version: "0.1.0"
+date-released: "2026-05-17"
