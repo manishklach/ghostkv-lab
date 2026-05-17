@@ -1,0 +1,26 @@
+# Format: category<TAB>prompt
+short	Explain why cache locality matters in systems design.
+short	What is the purpose of a KV cache in transformer inference?
+short	Summarize the tradeoff between exactness and efficiency in one paragraph.
+long	Write a detailed explanation of why long-context inference can become bandwidth-bound rather than compute-bound.
+long	Describe the difference between compression, eviction, and query-time elimination for transformer KV-cache management. Include practical caveats.
+long	Discuss how memory hierarchy design can affect autoregressive decode throughput, especially when context length grows beyond the hot working set.
+code	Write a Python function that computes scaled dot-product attention for a single head.
+code	Explain this pseudocode: for each token, compute an upper bound; eliminate impossible candidates; resurrect survivors; run exact attention.
+code	Generate a short code review note about a function that loads a model, captures attention tensors, and writes CSV outputs.
+conversation	User: I am testing a research idea about transformer memory. Assistant: What exactly are you trying to validate?
+conversation	User: I do not want hype. Assistant: Here is a careful experimental framing for a systems research repo.
+conversation	User: How can we test whether sketches preserve attention ranking? Assistant: Start with per-head overlap and false elimination metrics.
+retrieval	Given a long document about cache coherence, retrieve the paragraph that explains invalidation traffic under contention.
+retrieval	Answer the question using only the facts in the provided notes about transformer attention memory access patterns.
+retrieval	Find the sentence that mentions resurrection latency in a discussion of GhostKV-like evaluation.
+repetitive	alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha
+repetitive	token token token token token token token token token token token token token token token
+repetitive	cache cache cache cache cache cache cache cache cache cache cache cache cache cache cache
+structured	Section 1: assumptions. Section 2: method. Section 3: limitations. Section 4: open questions.
+structured	List the steps of a reproducible experiment for real attention validation on GPT-2.
+structured	Outline a comparison between flat elimination and hierarchical elimination in bullet form.
+technical	Explain why preserving global similarity structure may be easier than preserving exact top-attention ranking.
+technical	What kinds of attention heads might be fragile under low-dimensional projection?
+technical	Why can false elimination matter more than average rank correlation in bounded filtering?
+mixed	Write a short answer about GPUs, then discuss memory systems, then return to transformer inference.

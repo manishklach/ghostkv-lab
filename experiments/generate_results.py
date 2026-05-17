@@ -64,6 +64,13 @@ def _markdown_table(rows: Iterable[dict[str, str]], columns: list[str]) -> str:
     return "\n".join([header, divider, *body])
 
 
+def _safe_read_csv(path: Path) -> list[dict[str, str]]:
+    """Read a CSV if it exists, otherwise return an empty list."""
+    if not path.exists():
+        return []
+    return _read_csv(path)
+
+
 def run_sketch_quality_sweep(num_tokens: int, dim: int, seed: int) -> list[dict[str, float | int]]:
     """Generate sketch-quality rows across sketch dimensions."""
     rng = np.random.default_rng(seed)
@@ -181,8 +188,12 @@ def generate_results_markdown(
     sketch_rows: list[dict[str, str]],
     elimination_rows: list[dict[str, str]],
     bandwidth_rows: list[dict[str, str]],
+    results_dir: Path = RESULTS_DIR,
 ) -> str:
-    """Build the RESULTS.md content from generated CSV data."""
+    """Build the RESULTS.md content from generated CSV data and optional real-attention outputs."""
+    real_rows = _safe_read_csv(results_dir / "real_attention_validation.csv")
+    hierarchical_rows = _safe_read_csv(results_dir / "hierarchical_results.csv")
+
     representative_elimination = [
         row
         for row in elimination_rows
@@ -210,17 +221,73 @@ def generate_results_markdown(
         ["scheme", "resurrection_rate", "bytes", "reduction_vs_full"],
     )
 
-    return f"""# GhostKV Synthetic Results
+    real_focus_rows = [
+        row
+        for row in real_rows
+        if row.get("sketch_dim") == "32" and row.get("theta") == "0.5"
+    ]
+    real_focus_rows = sorted(real_focus_rows, key=lambda row: int(row["layer_idx"]))
+    real_table = (
+        _markdown_table(
+            real_focus_rows,
+            ["layer_idx", "topk_overlap_mean", "rank_correlation_mean", "false_elimination_rate_mean", "elimination_rate_mean"],
+        )
+        if real_focus_rows
+        else "_Real-attention validation has not been generated yet._"
+    )
+
+    hierarchical_table = (
+        _markdown_table(
+            hierarchical_rows,
+            ["method", "theta", "false_elimination_rate_mean", "elimination_rate_mean"],
+        )
+        if hierarchical_rows
+        else "_Hierarchical filtering results have not been generated yet._"
+    )
+    real_plot_lines = (
+        "\n".join(
+            [
+                "- [results/real_attention_topk_overlap.png](results/real_attention_topk_overlap.png)",
+                "- [results/real_attention_false_elimination.png](results/real_attention_false_elimination.png)",
+                "- [results/real_attention_layerwise_overlap.png](results/real_attention_layerwise_overlap.png)",
+                "- [results/head_variance.png](results/head_variance.png)",
+                "- [results/real_attention_summary.md](results/real_attention_summary.md)",
+            ]
+        )
+        if real_rows
+        else "_Real-attention plots and summaries have not been generated yet._"
+    )
+    hierarchical_plot_lines = (
+        "- [results/hierarchical_vs_flat.png](results/hierarchical_vs_flat.png)"
+        if hierarchical_rows
+        else "_Hierarchical plot has not been generated yet._"
+    )
+
+    return f"""# GhostKV Results
 
 ## Status
 
-Synthetic simulator working. Real-model validation pending.
+Synthetic simulator working. Real-attention validation supported on lightweight HuggingFace models.
 
 ## Important disclaimer
 
+Synthetic results and real-model attention-validation results are reported separately below.
+
+This repository does not benchmark throughput and does not establish production viability. The real-model path focuses on attention-ranking preservation and bounded elimination behavior on captured Q/K tensors.
+
+## Key Findings So Far
+
+- Low-dimensional sketches tend to preserve coarse similarity structure more reliably than exact top-attention ranking.
+- False elimination remains the primary challenge in bounded filtering.
+- Head-wise behavior varies significantly across layers and prompts.
+- Real transformer tensors can behave differently from Gaussian synthetic tensors.
+- The current simple hierarchical baseline does not yet outperform flat elimination, but the design space remains open.
+
+## Synthetic Results
+
 These are synthetic simulation results, not real-model results.
 
-These results use synthetic key/query tensors. They test whether the GhostKV evaluation pipeline works and whether sketch-based elimination behaves plausibly. They do not prove production speedups or model-quality preservation.
+The synthetic experiments use Gaussian key/query tensors to validate the harness and to study threshold sensitivity under controlled conditions. They do not prove production speedups or model-quality preservation.
 
 ## Experiment 1: Sketch quality audit
 
@@ -253,22 +320,54 @@ Plot: [results/resurrection_rate_vs_bandwidth.png](results/resurrection_rate_vs_
 - Elimination is encouraging only when false elimination remains controlled while useful pruning still occurs.
 - The bandwidth model is illustrative, but it helps motivate why reducing movement may matter more than only compressing bytes at rest.
 
-## Limitations
+## Real Attention Validation
+
+The real-attention path captures Q/K tensors from lightweight HuggingFace transformer models and measures sketch behavior on actual attention states rather than Gaussian tensors.
+
+{real_table}
+
+Plots:
+
+{real_plot_lines}
+
+Observations:
+
+- Random projections often preserve broad similarity structure better than exact top-k ordering.
+- Real transformer tensors are layer-dependent and head-dependent.
+- Threshold choice can change false elimination behavior materially.
+
+## Hierarchical Filtering
+
+The hierarchical experiment adds simple anchor grouping before token-level elimination to test whether coarse filtering can improve elimination quality.
+
+{hierarchical_table}
+
+Plot:
+
+{hierarchical_plot_lines}
+
+Current note:
+
+- In the present lightweight baseline, hierarchical filtering remains exploratory and does not yet improve false elimination behavior relative to flat filtering.
+
+## Limitations And Next Steps
 
 - Random tensors are not transformer tensors.
+- GPT-2 is not representative of all modern LLMs.
+- Small models differ from large long-context models.
 - Real attention distributions may be more structured or more adversarial.
 - Softmax denominator handling is not fully modeled.
 - Resurrection latency is estimated, not benchmarked.
-- No HuggingFace or real LLM validation exists in this repository yet.
+- No actual memory-movement reduction is measured on hardware.
+- Resurrection remains simulated.
+- No FlashAttention integration exists yet.
 
 ## Next milestone
 
-Real K/Q tensor capture from a small transformer:
-
-- GPT-2 small or TinyLlama
-- capture attention Q/K tensors
-- compare exact QK ranking vs sketch ranking
-- evaluate false elimination rate on real attention
+- Expand real-model validation beyond GPT-2.
+- Capture real attention tensors from additional decoder architectures.
+- Compare layer/head fragility across models and prompt families.
+- Study hierarchical ghost indexes and learned sketch functions.
 """
 
 
@@ -332,6 +431,7 @@ def generate_all_results(
         sketch_rows=_read_csv(sketch_csv),
         elimination_rows=_read_csv(elimination_csv),
         bandwidth_rows=_read_csv(bandwidth_csv),
+        results_dir=results_dir,
     )
     results_md_path.write_text(results_markdown, encoding="utf-8")
 

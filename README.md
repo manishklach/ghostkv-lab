@@ -27,7 +27,9 @@ Current status:
 - Sketch quality audit: working
 - Elimination tradeoff sweep: working
 - Bandwidth model: working
-- Real-model validation: pending
+- GPT-2 real attention validation: working
+- Hierarchical elimination study: working
+- TinyLlama validation: optional / fallback to GPT-2
 - GPU kernel integration: pending
 
 ## Research Positioning
@@ -35,6 +37,7 @@ Current status:
 GhostKV Lab currently focuses on:
 
 - synthetic evaluation
+- real attention-ranking validation on lightweight HuggingFace models
 - elimination-bound experimentation
 - KV-memory traffic modeling
 - attention sketch behavior
@@ -101,6 +104,8 @@ python experiments/elimination_tradeoff.py
 python experiments/bandwidth_model_demo.py
 python experiments/synthetic_decode_simulation.py
 python experiments/generate_results.py
+python experiments/real_attention_validation.py
+python experiments/hierarchical_elimination.py
 ```
 
 If you prefer not to create a virtual environment, the same install and run commands work with the active Python environment as long as it is Python 3.10+.
@@ -132,8 +137,10 @@ Long-context inference can become bottlenecked by KV-cache movement rather than 
 - `experiments/bandwidth_model_demo.py`: compares illustrative memory footprints for full KV, quantized KV, and GhostKV
 - `experiments/synthetic_decode_simulation.py`: runs a multi-step decode simulation and summarizes aggregate metrics
 - `experiments/generate_results.py`: regenerates synthetic CSV outputs, PNG plots, and `RESULTS.md`
+- `experiments/real_attention_validation.py`: captures GPT-2 Q/K tensors and evaluates ranking preservation on real attention states
+- `experiments/hierarchical_elimination.py`: compares flat and hierarchical elimination on real attention tensors
 
-All experiments use synthetic tensors and are intended to inform feasibility, not to claim production benefit.
+Synthetic and real-attention experiments are both intended to inform feasibility, not to claim production benefit.
 
 ## Generate Results
 
@@ -142,6 +149,12 @@ make demo
 ```
 
 This runs the test suite and then generates synthetic CSV outputs, PNG plots, and a refreshed [RESULTS.md](RESULTS.md) summary. If you only want to regenerate artifacts, use `make results`.
+
+Additional targets:
+
+- `make real-validation`
+- `make hierarchical`
+- `make all-results`
 
 If `make` is not available in your shell, the equivalent commands are:
 
@@ -156,27 +169,29 @@ What currently works:
 
 - synthetic sketch-quality sweeps
 - elimination-threshold experiments
+- GPT-2 attention tensor capture on CPU
+- per-layer and per-head real attention metrics
+- flat versus hierarchical elimination comparisons
 - decode-step simulation with exact attention on surviving candidates
 - illustrative bandwidth and resurrection modeling
 - CSV, plot, and markdown result generation
 
 What is currently simulated:
 
-- query and key tensors
 - anchor and residual uncertainty terms
 - resurrection cost estimates
 - memory-traffic comparisons
 
 What remains hypothetical or unvalidated:
 
-- behavior on real transformer attention tensors
 - quality retention on benchmark tasks
 - runtime overlap between resurrection and decode compute
 - end-to-end latency benefit in a production inference stack
+- generalization from GPT-2 to larger modern models
 
 What is future work:
 
-- real-model Q/K capture
+- broader real-model Q/K capture
 - LongBench and retrieval-style validation
 - FlashAttention-compatible survivor paths
 - GPU and memory-tier experiments
@@ -194,7 +209,7 @@ Additional detail is in [docs/roadmap.md](docs/roadmap.md).
 ## Development Notes
 
 - Python 3.10+
-- Main dependencies: `numpy`, `matplotlib`
+- Main dependencies: `numpy`, `matplotlib`, `torch`, `transformers`
 - Test runner: `pytest`
 - Editable install supported via `pip install -e ".[dev]"`
 

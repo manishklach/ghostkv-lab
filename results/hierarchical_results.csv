@@ -1,0 +1,11 @@
+method,theta,false_elimination_rate_mean,elimination_rate_mean,num_samples
+flat,0.1,0.407552,0.524548,288
+flat,0.3,0.40842,0.524847,288
+flat,0.5,0.41059,0.52568,288
+flat,0.7,0.411458,0.526594,288
+flat,0.9,0.41276,0.527562,288
+hierarchical,0.1,0.440104,0.544109,288
+hierarchical,0.3,0.440538,0.544242,288
+hierarchical,0.5,0.442274,0.544942,288
+hierarchical,0.7,0.443142,0.545855,288
+hierarchical,0.9,0.444444,0.546823,288

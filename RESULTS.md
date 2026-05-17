@@ -1,14 +1,28 @@
-# GhostKV Synthetic Results
+# GhostKV Results
 
 ## Status
 
-Synthetic simulator working. Real-model validation pending.
+Synthetic simulator working. Real-attention validation supported on lightweight HuggingFace models.
 
 ## Important disclaimer
 
+Synthetic results and real-model attention-validation results are reported separately below.
+
+This repository does not benchmark throughput and does not establish production viability. The real-model path focuses on attention-ranking preservation and bounded elimination behavior on captured Q/K tensors.
+
+## Key Findings So Far
+
+- Low-dimensional sketches tend to preserve coarse similarity structure more reliably than exact top-attention ranking.
+- False elimination remains the primary challenge in bounded filtering.
+- Head-wise behavior varies significantly across layers and prompts.
+- Real transformer tensors can behave differently from Gaussian synthetic tensors.
+- The current simple hierarchical baseline does not yet outperform flat elimination, but the design space remains open.
+
+## Synthetic Results
+
 These are synthetic simulation results, not real-model results.
 
-These results use synthetic key/query tensors. They test whether the GhostKV evaluation pipeline works and whether sketch-based elimination behaves plausibly. They do not prove production speedups or model-quality preservation.
+The synthetic experiments use Gaussian key/query tensors to validate the harness and to study threshold sensitivity under controlled conditions. They do not prove production speedups or model-quality preservation.
 
 ## Experiment 1: Sketch quality audit
 
@@ -63,19 +77,71 @@ Plot: [results/resurrection_rate_vs_bandwidth.png](results/resurrection_rate_vs_
 - Elimination is encouraging only when false elimination remains controlled while useful pruning still occurs.
 - The bandwidth model is illustrative, but it helps motivate why reducing movement may matter more than only compressing bytes at rest.
 
-## Limitations
+## Real Attention Validation
+
+The real-attention path captures Q/K tensors from lightweight HuggingFace transformer models and measures sketch behavior on actual attention states rather than Gaussian tensors.
+
+| layer_idx | topk_overlap_mean | rank_correlation_mean | false_elimination_rate_mean | elimination_rate_mean |
+| --- | --- | --- | --- | --- |
+| 0 | 0.804167 | 0.9506 | 0.275 | 0.347407 |
+| 3 | 0.772917 | 0.943453 | 0.622917 | 0.786142 |
+| 6 | 0.747917 | 0.935672 | 0.323958 | 0.541508 |
+| 9 | 0.729167 | 0.930016 | 0.179167 | 0.294509 |
+
+Plots:
+
+- [results/real_attention_topk_overlap.png](results/real_attention_topk_overlap.png)
+- [results/real_attention_false_elimination.png](results/real_attention_false_elimination.png)
+- [results/real_attention_layerwise_overlap.png](results/real_attention_layerwise_overlap.png)
+- [results/head_variance.png](results/head_variance.png)
+- [results/real_attention_summary.md](results/real_attention_summary.md)
+
+Observations:
+
+- Random projections often preserve broad similarity structure better than exact top-k ordering.
+- Real transformer tensors are layer-dependent and head-dependent.
+- Threshold choice can change false elimination behavior materially.
+
+## Hierarchical Filtering
+
+The hierarchical experiment adds simple anchor grouping before token-level elimination to test whether coarse filtering can improve elimination quality.
+
+| method | theta | false_elimination_rate_mean | elimination_rate_mean |
+| --- | --- | --- | --- |
+| flat | 0.1 | 0.407552 | 0.524548 |
+| flat | 0.3 | 0.40842 | 0.524847 |
+| flat | 0.5 | 0.41059 | 0.52568 |
+| flat | 0.7 | 0.411458 | 0.526594 |
+| flat | 0.9 | 0.41276 | 0.527562 |
+| hierarchical | 0.1 | 0.440104 | 0.544109 |
+| hierarchical | 0.3 | 0.440538 | 0.544242 |
+| hierarchical | 0.5 | 0.442274 | 0.544942 |
+| hierarchical | 0.7 | 0.443142 | 0.545855 |
+| hierarchical | 0.9 | 0.444444 | 0.546823 |
+
+Plot:
+
+- [results/hierarchical_vs_flat.png](results/hierarchical_vs_flat.png)
+
+Current note:
+
+- In the present lightweight baseline, hierarchical filtering remains exploratory and does not yet improve false elimination behavior relative to flat filtering.
+
+## Limitations And Next Steps
 
 - Random tensors are not transformer tensors.
+- GPT-2 is not representative of all modern LLMs.
+- Small models differ from large long-context models.
 - Real attention distributions may be more structured or more adversarial.
 - Softmax denominator handling is not fully modeled.
 - Resurrection latency is estimated, not benchmarked.
-- No HuggingFace or real LLM validation exists in this repository yet.
+- No actual memory-movement reduction is measured on hardware.
+- Resurrection remains simulated.
+- No FlashAttention integration exists yet.
 
 ## Next milestone
 
-Real K/Q tensor capture from a small transformer:
-
-- GPT-2 small or TinyLlama
-- capture attention Q/K tensors
-- compare exact QK ranking vs sketch ranking
-- evaluate false elimination rate on real attention
+- Expand real-model validation beyond GPT-2.
+- Capture real attention tensors from additional decoder architectures.
+- Compare layer/head fragility across models and prompt families.
+- Study hierarchical ghost indexes and learned sketch functions.
