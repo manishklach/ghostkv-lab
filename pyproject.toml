@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-  { name = "GhostKV Lab" }
+  { name = "Manish KL", email = "manishklach@gmail.com" }
 ]
 dependencies = [
   "numpy>=1.24",

@@ -10,6 +10,20 @@ Synthetic results and real-model attention-validation results are reported separ
 
 This repository does not benchmark throughput and does not establish production viability. The real-model path focuses on attention-ranking preservation and bounded elimination behavior on captured Q/K tensors.
 
+## Most Important Current Result
+
+The current GPT-2 false-elimination frontier sweep found **no safe-ish operating points** satisfying both:
+
+- `false_elimination_rate <= 5%`
+- `elimination_rate >= 30%`
+
+This is the clearest current research finding in the repository. It suggests that, under the present sketching and thresholding setup, preserving broad similarity structure is not enough to obtain useful elimination without unacceptable false elimination risk.
+
+See:
+
+- [results/frontier/FRONTIER.md](results/frontier/FRONTIER.md)
+- [results/frontier/safe_operating_points.csv](results/frontier/safe_operating_points.csv)
+
 ## Key Findings So Far
 
 - Low-dimensional sketches tend to preserve coarse similarity structure more reliably than exact top-attention ranking.
@@ -17,6 +31,7 @@ This repository does not benchmark throughput and does not establish production 
 - Head-wise behavior varies significantly across layers and prompts.
 - Real transformer tensors can behave differently from Gaussian synthetic tensors.
 - The current simple hierarchical baseline does not yet outperform flat elimination, but the design space remains open.
+- The current GPT-2 frontier sweep found no safe-ish operating points under `false_elimination_rate <= 5%` and `elimination_rate >= 30%`.
 
 ## Synthetic Results
 

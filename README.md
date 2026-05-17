@@ -9,6 +9,8 @@
 
 GhostKV Lab is a lightweight Python repository for studying whether sketch-based bounded elimination can reduce KV-cache memory movement while preserving attention quality in long-context decode workloads. It is built as a synthetic evaluation harness first: no heavyweight model downloads, no kernel claims, and no fabricated benchmark results.
 
+The current empirical emphasis is on failure analysis as much as success cases: the most important result in the repository today is that the current GPT-2 frontier sweep did **not** find safe-ish operating points with `false_elimination_rate <= 5%` and `elimination_rate >= 30%`.
+
 ## Patent Notice
 
 This repository is associated with Indian provisional patent application `202641062451`, titled:
@@ -49,6 +51,20 @@ Current experiments focus on:
 - synthetic memory-traffic modeling
 
 Latency reduction and production inference integration remain future work.
+
+## Current Headline Result
+
+Under the current GPT-2 real-attention frontier sweep, GhostKV Lab did **not** find safe-ish operating points meeting:
+
+- `false_elimination_rate <= 5%`
+- `elimination_rate >= 30%`
+
+This is currently the most important result in the repository because it shows that coarse ranking preservation alone is not enough. High rank correlation can coexist with weak extreme-rank preservation and unacceptable elimination tradeoffs.
+
+See:
+
+- [RESULTS.md](RESULTS.md)
+- [results/frontier/FRONTIER.md](results/frontier/FRONTIER.md)
 
 Run:
 
@@ -194,6 +210,7 @@ Synthetic and real-attention experiments are both intended to inform feasibility
 - False elimination remains the primary technical challenge.
 - Some attention heads and layers appear substantially more sketch-preserving than others.
 - Hierarchical elimination may improve elimination behavior in principle, but the current naive clustering baseline does not yet outperform flat elimination consistently.
+- The current GPT-2 frontier sweep did not find safe-ish operating points with false elimination below 5% and elimination above 30%.
 
 ## Generate Results
 
@@ -249,7 +266,7 @@ What remains hypothetical or unvalidated:
 - quality retention on benchmark tasks
 - runtime overlap between resurrection and decode compute
 - end-to-end latency benefit in a production inference stack
-- generalization from GPT-2 to larger modern models
+- generalization from GPT-2 to larger modern models such as Llama, Mistral, and GQA-based decoders
 
 What is future work:
 
