@@ -6,6 +6,8 @@ This repository is a research-oriented evaluation harness. Contributions that im
 
 ## Setup
 
+### PowerShell
+
 Install locally from the repo root:
 
 ```bash
@@ -14,10 +16,26 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 ```
 
+### WSL / Linux / macOS
+
+WSL is recommended for reproducible experiment workflows and heavier validation runs.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
 ## Run Tests
 
 ```bash
 python -m pytest
+```
+
+WSL examples:
+
+```bash
+wsl -e bash -c "pytest"
 ```
 
 ## Run Synthetic Results
@@ -30,6 +48,12 @@ If `make` is unavailable in your shell:
 
 ```bash
 python experiments/generate_results.py
+```
+
+WSL examples:
+
+```bash
+wsl -e bash -c "make results"
 ```
 
 ## Run Frontier Analysis
@@ -45,6 +69,14 @@ python experiments/false_elimination_frontier.py
 ```
 
 Frontier outputs are written under `results/frontier/`.
+
+WSL examples:
+
+```bash
+wsl -e bash -c "make frontier"
+wsl -e bash -c "python experiments/false_elimination_frontier.py"
+wsl -e bash -c "python experiments/real_attention_validation.py"
+```
 
 ## Good First Issues
 
@@ -64,4 +96,3 @@ Frontier outputs are written under `results/frontier/`.
 ## Commit Message Suggestion
 
 `Add false-elimination frontier analysis for real attention tensors`
-

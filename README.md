@@ -110,7 +110,9 @@ ghostkv-lab/
 
 ## Quickstart
 
-These are the commands validated for this repository from the repo root:
+### PowerShell
+
+These commands work from the repo root in Windows PowerShell:
 
 ```bash
 python -m venv .venv
@@ -125,6 +127,29 @@ python experiments/generate_results.py
 python experiments/real_attention_validation.py
 python experiments/hierarchical_elimination.py
 python experiments/false_elimination_frontier.py
+```
+
+### WSL / Linux / macOS
+
+WSL is recommended for reproducible experiment workflows, especially for the heavier plotting and HuggingFace-based validation scripts.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+pytest
+make results
+make frontier
+python experiments/real_attention_validation.py
+```
+
+From Windows, the same workflow can be invoked explicitly through WSL:
+
+```bash
+wsl -e bash -c "pytest"
+wsl -e bash -c "make results"
+wsl -e bash -c "make frontier"
+wsl -e bash -c "python experiments/real_attention_validation.py"
 ```
 
 If you prefer not to create a virtual environment, the same install and run commands work with the active Python environment as long as it is Python 3.10+.
@@ -190,6 +215,14 @@ If `make` is not available in your shell, the equivalent commands are:
 ```bash
 python -m pytest
 python experiments/generate_results.py
+```
+
+For reproducible experiment workflows on Windows, using WSL is recommended:
+
+```bash
+wsl -e bash -c "pytest"
+wsl -e bash -c "make results"
+wsl -e bash -c "make frontier"
 ```
 
 ## Current State Of The Project
