@@ -1,0 +1,20 @@
+[
+  {
+    "model_id": "gpt2",
+    "layer_idx": 0.0,
+    "learned_false_elimination_rate": 0.25,
+    "random_false_elimination_rate": 0.0
+  },
+  {
+    "model_id": "gpt2",
+    "layer_idx": 4.0,
+    "learned_false_elimination_rate": 0.0,
+    "random_false_elimination_rate": 0.0
+  },
+  {
+    "model_id": "gpt2",
+    "layer_idx": 8.0,
+    "learned_false_elimination_rate": 0.0,
+    "random_false_elimination_rate": 0.0
+  }
+]
