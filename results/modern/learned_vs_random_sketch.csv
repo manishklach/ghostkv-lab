@@ -1,4 +1,4 @@
 model_id,layer_idx,learned_false_elimination_rate,random_false_elimination_rate
-gpt2,0.0,0.25,0.0
+gpt2,0.0,0.0,0.0
 gpt2,4.0,0.0,0.0
 gpt2,8.0,0.0,0.0
