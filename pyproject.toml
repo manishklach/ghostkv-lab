@@ -15,8 +15,12 @@ authors = [
 dependencies = [
   "numpy>=1.24",
   "matplotlib>=3.7",
+  "pandas>=2.0",
+  "psutil>=5.9",
+  "scipy>=1.11",
   "torch>=2.2",
   "transformers>=4.57",
+  "huggingface_hub>=0.34",
 ]
 
 [project.optional-dependencies]
