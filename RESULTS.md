@@ -175,7 +175,7 @@ The modern real-attention pipeline uses architecture-aware hooks to capture raw 
 
 ### Key findings
 
-- Current modern-capture runs resolved to `gpt2` (requested `meta-llama/Llama-3.2-1B-Instruct`).
+- Current modern-capture runs resolved to `gpt2` (requested `gpt2`).
 - Mean rank correlation is `0.8699`, while mean top-32 overlap is `0.1154`.
 - Mean elimination rate is only `0.000046` under the current positive-threshold sweep, with a maximum observed elimination rate of `0.003906`.
 - Mean false elimination rate is `0.0086`, but the current run does not reach a meaningful elimination regime; the methodology is currently more informative than the operating point.
